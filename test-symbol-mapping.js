@@ -77,17 +77,27 @@ async function testSymbolMapping() {
 
     // 실제 API 호출 테스트
     console.log('📡 Testing exchange API calls...');
-    try {
-      const binance = exchangeManager.getExchange('binance');
-      const tickers = await binance.getTickers(['BTCUSDT', 'ETHUSDT']);
+    const testSymbols = ['BTCUSDT', 'ETHUSDT'];
+    const activeExchanges = exchangeManager.getActiveExchanges();
 
-      console.log(`✅ Binance: ${tickers.length} tickers fetched`);
-      tickers.forEach(ticker => {
-        console.log(`  ${ticker.symbol}: $${ticker.price} (${ticker.changePercent > 0 ? '+' : ''}${ticker.changePercent.toFixed(2)}%)`);
-      });
+    console.log(`Active exchanges: ${activeExchanges.join(', ')}`);
 
-    } catch (error) {
-      console.log(`⚠️ Exchange API test failed: ${error.message}`);
+    for (const exchangeName of activeExchanges) {
+      try {
+        const exchange = exchangeManager.getExchange(exchangeName);
+        const tickers = await exchange.getTickers(testSymbols);
+
+        console.log(`✅ ${exchangeName}: ${tickers.length} tickers fetched`);
+        tickers.slice(0, 2).forEach(ticker => {
+          console.log(`  ${ticker.symbol}: $${ticker.price} (${ticker.changePercent > 0 ? '+' : ''}${ticker.changePercent.toFixed(2)}%)`);
+        });
+
+      } catch (error) {
+        console.log(`⚠️ ${exchangeName} API test failed: ${error.message}`);
+      }
+
+      // Rate limiting between exchanges
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     // 3. ETL Pipeline 시뮬레이션

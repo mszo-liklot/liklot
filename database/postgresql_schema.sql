@@ -109,6 +109,8 @@ CREATE INDEX idx_mapping_logs_status ON mapping_update_logs(status, started_at);
 -- Insert initial exchange data
 INSERT INTO exchanges (id, name, api_url, rate_limit_per_minute) VALUES
 ('binance', 'Binance', 'https://api.binance.com', 1200),
-('upbit', 'Upbit', 'https://api.upbit.com', 600),
+('upbit', 'Upbit', 'https://api.upbit.com/v1', 600),
 ('coinbase', 'Coinbase Pro', 'https://api.exchange.coinbase.com', 3000),
-('bithumb', 'Bithumb', 'https://api.bithumb.com', 900);
+('bithumb', 'Bithumb', 'https://api.bithumb.com/public', 900),
+('kucoin', 'KuCoin', 'https://api.kucoin.com/api/v1', 1800),
+('okx', 'OKX', 'https://www.okx.com/api/v5', 1200);

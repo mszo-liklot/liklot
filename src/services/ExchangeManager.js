@@ -1,4 +1,9 @@
 const BinanceExchange = require('./exchanges/BinanceExchange');
+const UpbitExchange = require('./exchanges/UpbitExchange');
+const CoinbaseExchange = require('./exchanges/CoinbaseExchange');
+const BithumbExchange = require('./exchanges/BithumbExchange');
+const KuCoinExchange = require('./exchanges/KuCoinExchange');
+const OKXExchange = require('./exchanges/OKXExchange');
 
 class ExchangeManager {
   constructor() {
@@ -9,10 +14,11 @@ class ExchangeManager {
   initialize() {
     // Initialize exchanges
     this.exchanges.set('binance', new BinanceExchange());
-
-    // TODO: Add other exchanges
-    // this.exchanges.set('upbit', new UpbitExchange());
-    // this.exchanges.set('coinbase', new CoinbaseExchange());
+    this.exchanges.set('upbit', new UpbitExchange());
+    this.exchanges.set('coinbase', new CoinbaseExchange());
+    this.exchanges.set('bithumb', new BithumbExchange());
+    this.exchanges.set('kucoin', new KuCoinExchange());
+    this.exchanges.set('okx', new OKXExchange());
 
     console.log(`📊 Initialized ${this.exchanges.size} exchanges`);
   }
