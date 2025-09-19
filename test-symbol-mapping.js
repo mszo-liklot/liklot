@@ -190,6 +190,49 @@ async function testSymbolMapping() {
       console.log(`⚠️ Real-time test failed: ${error.message}`);
     }
 
+    // 5. VWAP → OHLCV 변환 테스트
+    console.log('\n5️⃣ Testing VWAP to OHLCV Conversion');
+
+    try {
+      // Mock VWAP 데이터 생성
+      const mockVWAPData = [
+        { timestamp: new Date('2024-01-01T10:00:00Z'), symbol: 'BTC', vwap_price: 45000, total_volume: 1000 },
+        { timestamp: new Date('2024-01-01T10:01:00Z'), symbol: 'BTC', vwap_price: 45100, total_volume: 1200 },
+        { timestamp: new Date('2024-01-01T10:02:00Z'), symbol: 'BTC', vwap_price: 44900, total_volume: 900 },
+        { timestamp: new Date('2024-01-01T10:03:00Z'), symbol: 'BTC', vwap_price: 45200, total_volume: 1100 },
+        { timestamp: new Date('2024-01-01T10:04:00Z'), symbol: 'BTC', vwap_price: 45050, total_volume: 1050 }
+      ];
+
+      console.log('📊 Mock VWAP data created:', mockVWAPData.length, 'records');
+
+      // VWAP 데이터에서 OHLCV 계산 시뮬레이션
+      const ohlcvData = {
+        timestamp: new Date('2024-01-01T10:05:00Z'),
+        symbol: 'BTC',
+        interval: '5m',
+        open: mockVWAPData[0].vwap_price,  // 첫 번째 VWAP
+        high: Math.max(...mockVWAPData.map(d => d.vwap_price)),  // 최고 VWAP
+        low: Math.min(...mockVWAPData.map(d => d.vwap_price)),   // 최저 VWAP
+        close: mockVWAPData[mockVWAPData.length - 1].vwap_price, // 마지막 VWAP
+        volume: mockVWAPData.reduce((sum, d) => sum + d.total_volume, 0), // 총 볼륨
+        source: 'vwap'
+      };
+
+      console.log('📈 Generated OHLCV from VWAP:');
+      console.log(`  Symbol: ${ohlcvData.symbol}`);
+      console.log(`  Open: $${ohlcvData.open}`);
+      console.log(`  High: $${ohlcvData.high}`);
+      console.log(`  Low: $${ohlcvData.low}`);
+      console.log(`  Close: $${ohlcvData.close}`);
+      console.log(`  Volume: ${ohlcvData.volume}`);
+      console.log(`  Source: ${ohlcvData.source}`);
+
+      console.log('✅ VWAP to OHLCV conversion test completed');
+
+    } catch (error) {
+      console.log(`⚠️ VWAP to OHLCV test failed: ${error.message}`);
+    }
+
     console.log('\n✅ All tests completed!');
     console.log('\n📋 Next Steps:');
     console.log('  1. Set up actual database connections');

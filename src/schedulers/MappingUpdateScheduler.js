@@ -32,14 +32,14 @@ class MappingUpdateScheduler {
       }
     });
 
-    // 3. 매 1분: OHLCV 데이터 생성
-    cron.schedule('* * * * *', async () => {
-      await this.generateOHLCVData();
-    });
-
-    // 4. 매 5분: VWAP 계산
+    // 3. 매 5분: VWAP 계산
     cron.schedule('*/5 * * * *', async () => {
       await this.calculateVWAPData();
+    });
+
+    // 4. 매 6분: VWAP 기반 OHLCV 데이터 생성 (VWAP 계산 1분 후 실행)
+    cron.schedule('1,7,13,19,25,31,37,43,49,55 * * * *', async () => {
+      await this.generateOHLCVData();
     });
 
     // 5. 매 시간: 매핑 품질 체크
@@ -105,58 +105,92 @@ class MappingUpdateScheduler {
   }
 
   /**
-   * OHLCV 데이터 생성 (1분 간격)
+   * VWAP 기반 OHLCV 데이터 생성 (1분 간격)
    */
   async generateOHLCVData() {
     try {
-      console.log('📊 Generating 1-minute OHLCV data...');
+      console.log('📊 Generating VWAP-based OHLCV data...');
 
+      // 1분, 5분, 15분, 1시간, 4시간, 1일 간격으로 OHLCV 생성
+      const intervals = [
+        { name: '1m', minutes: 1 },
+        { name: '5m', minutes: 5 },
+        { name: '15m', minutes: 15 },
+        { name: '1h', minutes: 60 },
+        { name: '4h', minutes: 240 },
+        { name: '1d', minutes: 1440 }
+      ];
+
+      for (const interval of intervals) {
+        await this.generateOHLCVForInterval(interval.name, interval.minutes);
+      }
+
+    } catch (error) {
+      console.error('❌ OHLCV generation failed:', error.message);
+    }
+  }
+
+  /**
+   * 특정 간격으로 VWAP 기반 OHLCV 생성
+   */
+  async generateOHLCVForInterval(intervalName, intervalMinutes) {
+    try {
       const now = new Date();
-      const oneMinuteAgo = new Date(now.getTime() - 60000);
+      const intervalAgo = new Date(now.getTime() - (intervalMinutes * 60000));
 
-      // 지난 1분간의 실시간 가격 데이터 집계
+      console.log(`📊 Generating ${intervalName} OHLCV from VWAP data...`);
+
+      // VWAP 데이터에서 OHLCV 계산
       const query = `
         SELECT
           symbol,
-          exchange,
-          toStartOfMinute(timestamp) as minute_timestamp,
-          argMin(price, timestamp) as open,
-          max(price) as high,
-          min(price) as low,
-          argMax(price, timestamp) as close,
-          sum(volume) as volume,
-          count(*) as trade_count
-        FROM real_time_prices
-        WHERE timestamp >= toDateTime('${oneMinuteAgo.toISOString()}')
+          toStartOfInterval(timestamp, toIntervalMinute(${intervalMinutes})) as candle_timestamp,
+          argMin(vwap_price, timestamp) as open,
+          max(vwap_price) as high,
+          min(vwap_price) as low,
+          argMax(vwap_price, timestamp) as close,
+          sum(total_volume) as volume,
+          avg(exchange_count) as avg_exchange_count,
+          count(*) as vwap_points
+        FROM vwap_data
+        WHERE timestamp >= toDateTime('${intervalAgo.toISOString()}')
           AND timestamp < toDateTime('${now.toISOString()}')
-        GROUP BY symbol, exchange, minute_timestamp
+          AND time_window IN ('5s', '1m', '5m')  -- 적절한 시간 윈도우만 사용
+        GROUP BY symbol, candle_timestamp
         HAVING count(*) > 0
+        ORDER BY symbol, candle_timestamp
       `;
 
       const ohlcvData = await this.clickhouse.query(query);
 
       if (ohlcvData.length > 0) {
-        // OHLCV 테이블에 삽입
         const insertData = ohlcvData.map(row => ({
-          timestamp: row.minute_timestamp,
+          timestamp: row.candle_timestamp,
           symbol: row.symbol,
-          exchange: row.exchange,
-          interval: '1m',
+          exchange: 'vwap_aggregated',  // VWAP 기반임을 표시
+          interval: intervalName,
           open: row.open,
           high: row.high,
           low: row.low,
           close: row.close,
           volume: row.volume,
-          trade_count: row.trade_count,
-          source: 'api'
+          quote_volume: row.volume * row.close,  // 볼륨 * 종가로 Quote Volume 계산
+          trade_count: row.vwap_points,
+          source: 'vwap'
         }));
 
         await this.clickhouse.insert('ohlcv', insertData);
-        console.log(`📊 Generated ${insertData.length} OHLCV records`);
+        console.log(`📊 Generated ${insertData.length} ${intervalName} VWAP-based OHLCV records`);
+
+        // 상세 통계 로깅
+        const symbols = [...new Set(insertData.map(item => item.symbol))];
+        console.log(`   📈 Symbols processed: ${symbols.slice(0, 5).join(', ')}${symbols.length > 5 ? '...' : ''} (${symbols.length} total)`);
+      } else {
+        console.log(`⚠️ No VWAP data available for ${intervalName} interval`);
       }
 
     } catch (error) {
-      console.error('❌ OHLCV generation failed:', error.message);
+      console.error(`❌ Failed to generate ${intervalName} OHLCV:`, error.message);
     }
   }
 

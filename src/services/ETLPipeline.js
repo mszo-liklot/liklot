@@ -165,10 +165,13 @@ class ETLPipeline {
       // 3-1. ClickHouse에 시계열 데이터 저장
       await this.loadToClickHouse(transformedData);
 
-      // 3-2. Redis에 실시간 캐시 저장
+      // 3-2. VWAP 계산 및 저장 (실시간)
+      await this.calculateAndStoreVWAP(transformedData);
+
+      // 3-3. Redis에 실시간 캐시 저장
       await this.loadToRedis(transformedData);
 
-      // 3-3. PostgreSQL에 메타데이터 업데이트
+      // 3-4. PostgreSQL에 메타데이터 업데이트
       await this.updateMetadata(transformedData);
 
       console.log('✅ Data loaded successfully');
