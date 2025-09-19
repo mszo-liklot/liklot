@@ -43,37 +43,132 @@ class SymbolMappingService {
   }
 
   /**
-   * 2. 거래소별 심볼 매핑 정보 수집
+   * 2. 거래소별 심볼 매핑 정보 수집 (개선된 버전)
    */
   async fetchExchangeMappings() {
-    const exchanges = ['binance', 'upbit', 'coinbase-exchange'];
+    // 지원하는 거래소 목록 확장
+    const exchanges = [
+      { id: 'binance', name: 'Binance' },
+      { id: 'upbit', name: 'Upbit' },
+      { id: 'coinbase-exchange', name: 'Coinbase Pro' },
+      { id: 'bithumb', name: 'Bithumb' },
+      { id: 'kucoin', name: 'KuCoin' },
+      { id: 'okx', name: 'OKX' }
+    ];
+
     const mappings = {};
 
     for (const exchange of exchanges) {
       try {
         await this.waitForRateLimit('coingecko');
 
-        const response = await axios.get(`${this.coinGeckoAPI}/exchanges/${exchange}/tickers`, {
-          params: { page: 1, per_page: 100 }
+        console.log(`📡 Fetching ${exchange.name} mappings...`);
+        const response = await axios.get(`${this.coinGeckoAPI}/exchanges/${exchange.id}/tickers`, {
+          params: {
+            page: 1,
+            per_page: 200  // 더 많은 심볼 수집
+          }
         });
 
-        mappings[exchange] = response.data.tickers.map(ticker => ({
-          coinId: ticker.coin_id,
-          baseSymbol: ticker.base,
-          targetSymbol: ticker.target,
-          exchangeSymbol: `${ticker.base}${ticker.target}`, // Binance 스타일
-          market: ticker.market
-        }));
+        if (response.data && response.data.tickers) {
+          mappings[exchange.id] = response.data.tickers.map(ticker => ({
+            coinId: ticker.coin_id,
+            baseSymbol: ticker.base,
+            targetSymbol: ticker.target,
+            exchangeSymbol: this.formatExchangeSymbol(exchange.id, ticker.base, ticker.target),
+            market: ticker.market,
+            volume: ticker.converted_volume?.usd || 0
+          }));
 
-        console.log(`📊 ${exchange}: ${mappings[exchange].length} symbols mapped`);
+          console.log(`✅ ${exchange.name}: ${mappings[exchange.id].length} symbols mapped`);
+        } else {
+          mappings[exchange.id] = [];
+          console.warn(`⚠️ ${exchange.name}: No ticker data received`);
+        }
 
       } catch (error) {
-        console.error(`❌ Failed to fetch ${exchange} mappings:`, error.message);
-        mappings[exchange] = [];
+        console.error(`❌ Failed to fetch ${exchange.name} mappings:`, error.message);
+        mappings[exchange.id] = [];
+
+        // 거래소별 대체 매핑 전략
+        mappings[exchange.id] = this.getFallbackMappings(exchange.id);
       }
     }
 
     return mappings;
+  }
+
+  /**
+   * 거래소별 심볼 포맷팅
+   */
+  formatExchangeSymbol(exchangeId, base, target) {
+    switch (exchangeId) {
+      case 'binance':
+      case 'kucoin':
+      case 'okx':
+        return `${base}${target}`;  // BTCUSDT
+      case 'upbit':
+        return `${target}-${base}`;  // KRW-BTC
+      case 'coinbase-exchange':
+        return `${base}-${target}`;  // BTC-USD
+      case 'bithumb':
+        return `${base}_${target}`;  // BTC_KRW
+      default:
+        return `${base}${target}`;
+    }
+  }
+
+  /**
+   * API 실패시 대체 매핑 (주요 코인들)
+   */
+  getFallbackMappings(exchangeId) {
+    const majorCoins = [
+      { coinId: 'bitcoin', base: 'BTC', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'ethereum', base: 'ETH', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'cardano', base: 'ADA', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'polkadot', base: 'DOT', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'chainlink', base: 'LINK', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'solana', base: 'SOL', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'avalanche-2', base: 'AVAX', targets: ['USDT', 'USD', 'KRW'] },
+      { coinId: 'polygon', base: 'MATIC', targets: ['USDT', 'USD', 'KRW'] }
+    ];
+
+    const fallbackMappings = [];
+
+    majorCoins.forEach(coin => {
+      coin.targets.forEach(target => {
+        // 거래소별 지원 쌍 필터링
+        if (this.isValidPairForExchange(exchangeId, coin.base, target)) {
+          fallbackMappings.push({
+            coinId: coin.coinId,
+            baseSymbol: coin.base,
+            targetSymbol: target,
+            exchangeSymbol: this.formatExchangeSymbol(exchangeId, coin.base, target),
+            market: 'fallback',
+            volume: 0
+          });
+        }
+      });
+    });
+
+    console.log(`📋 ${exchangeId}: Using ${fallbackMappings.length} fallback mappings`);
+    return fallbackMappings;
+  }
+
+  /**
+   * 거래소별 지원 쌍 확인
+   */
+  isValidPairForExchange(exchangeId, base, target) {
+    const exchangePairs = {
+      binance: ['USDT', 'BTC', 'ETH'],
+      upbit: ['KRW'],
+      'coinbase-exchange': ['USD', 'USDT'],
+      bithumb: ['KRW'],
+      kucoin: ['USDT', 'BTC'],
+      okx: ['USDT', 'BTC']
+    };
+
+    return exchangePairs[exchangeId]?.includes(target) || false;
   }
 
   /**
