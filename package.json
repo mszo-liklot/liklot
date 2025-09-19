@@ -6,7 +6,17 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest"
+    "test": "jest",
+    "test:mapping": "node tests/mapping-verification.js",
+    "test:exchanges": "node tests/exchange-integration.js",
+    "test:strategy": "node tests/improvement-strategy.js",
+    "test:all": "npm run test:mapping && npm run test:exchanges && npm run test:strategy",
+    "structure": "tree /f /a || find . -type f -name '*.js' | head -20",
+    "health": "curl -s http://localhost:3000/health || echo 'Server not running'",
+    "init": "node init.js",
+    "db:schema": "echo 'Run: psql -d crypto_tracker -f database/postgresql_schema.sql'",
+    "exchanges": "node -e \"const em = require('./src/services/ExchangeManager'); const e = new em(); console.log('Active exchanges:', e.getActiveExchanges().join(', '))\"",
+    "check": "npm run test:all && npm run health"
   },
   "dependencies": {
     "axios": "^1.12.2",
