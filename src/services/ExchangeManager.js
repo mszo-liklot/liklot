@@ -4,6 +4,11 @@ const CoinbaseExchange = require('./exchanges/CoinbaseExchange');
 const BithumbExchange = require('./exchanges/BithumbExchange');
 const KuCoinExchange = require('./exchanges/KuCoinExchange');
 const OKXExchange = require('./exchanges/OKXExchange');
+const BybitExchange = require('./exchanges/BybitExchange');
+const GateExchange = require('./exchanges/GateExchange');
+const HuobiExchange = require('./exchanges/HuobiExchange');
+const KrakenExchange = require('./exchanges/KrakenExchange');
+const MEXCExchange = require('./exchanges/MEXCExchange');
 
 class ExchangeManager {
   constructor() {
@@ -12,7 +17,7 @@ class ExchangeManager {
   }
 
   initialize() {
-    // Initialize exchanges
+    // Initialize exchanges (기존 6개 + 신규 5개 = 총 11개)
     this.exchanges.set('binance', new BinanceExchange());
     this.exchanges.set('upbit', new UpbitExchange());
     this.exchanges.set('coinbase', new CoinbaseExchange());
@@ -20,7 +25,15 @@ class ExchangeManager {
     this.exchanges.set('kucoin', new KuCoinExchange());
     this.exchanges.set('okx', new OKXExchange());
 
+    // 새로 추가된 거래소들
+    this.exchanges.set('bybit', new BybitExchange());
+    this.exchanges.set('gate', new GateExchange());
+    this.exchanges.set('huobi', new HuobiExchange());
+    this.exchanges.set('kraken', new KrakenExchange());
+    this.exchanges.set('mexc', new MEXCExchange());
+
     console.log(`📊 Initialized ${this.exchanges.size} exchanges`);
+    console.log(`   🏢 Active exchanges: ${Array.from(this.exchanges.keys()).join(', ')}`);
   }
 
   // Get all active exchanges

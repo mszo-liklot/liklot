@@ -13,7 +13,7 @@ Liklot is a high-performance cryptocurrency market data platform that aggregates
 
 ### 🎯 Key Features
 
-- **Multi-Exchange Integration**: Real-time data from 6+ major exchanges (Binance, Upbit, Coinbase, Bithumb, KuCoin, OKX)
+- **Multi-Exchange Integration**: Real-time data from 11 major exchanges (Binance, Upbit, Coinbase, Bithumb, KuCoin, OKX, Bybit, Gate.io, Huobi, Kraken, MEXC)
 - **VWAP Calculation**: Accurate volume-weighted average pricing across exchanges
 - **OHLCV Generation**: Automated candlestick data for multiple timeframes (1m, 5m, 15m, 1h, 4h, 1d)
 - **Symbol Mapping**: Intelligent cryptocurrency symbol standardization using CoinGecko and CoinMarketCap APIs
@@ -203,14 +203,19 @@ GET /api/v1/coins/:symbol/ohlcv
 
 ## 🎯 Supported Exchanges
 
-| Exchange | Status | Rate Limit | Symbols |
-|----------|--------|------------|---------|
-| Binance | ✅ | 1200/min | USDT, BTC, ETH pairs |
-| Upbit | ✅ | 600/min | KRW pairs |
-| Coinbase Pro | ✅ | 3000/min | USD, USDT pairs |
-| Bithumb | ✅ | 900/min | KRW pairs |
-| KuCoin | ✅ | 1800/min | USDT, BTC pairs |
-| OKX | ✅ | 1200/min | USDT, BTC pairs |
+| Exchange | Status | Rate Limit | Symbols | Region |
+|----------|--------|------------|---------|--------|
+| Binance | ✅ | 1200/min | USDT, BTC, ETH pairs | Global |
+| Upbit | ✅ | 600/min | KRW pairs | Korea |
+| Coinbase Pro | ✅ | 3000/min | USD, USDT pairs | US/EU |
+| Bithumb | ✅ | 900/min | KRW pairs | Korea |
+| KuCoin | ✅ | 1800/min | USDT, BTC pairs | Global |
+| OKX | ✅ | 1200/min | USDT, BTC pairs | Global |
+| Bybit | ✅ | 600/min | USDT, BTC pairs | Global |
+| Gate.io | ✅ | 900/min | USDT, BTC, ETH pairs | Global |
+| Huobi | ✅ | 800/min | USDT, BTC, ETH pairs | Global |
+| Kraken | ✅ | 60/min | USD, EUR, BTC pairs | US/EU |
+| MEXC | ✅ | 1200/min | USDT, BTC pairs | Global |
 
 ## 🔮 Roadmap
 

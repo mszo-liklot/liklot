@@ -46,14 +46,19 @@ class SymbolMappingService {
    * 2. 거래소별 심볼 매핑 정보 수집 (개선된 버전)
    */
   async fetchExchangeMappings() {
-    // 지원하는 거래소 목록 확장
+    // 지원하는 거래소 목록 확장 (6개 → 11개)
     const exchanges = [
       { id: 'binance', name: 'Binance' },
       { id: 'upbit', name: 'Upbit' },
       { id: 'coinbase-exchange', name: 'Coinbase Pro' },
       { id: 'bithumb', name: 'Bithumb' },
       { id: 'kucoin', name: 'KuCoin' },
-      { id: 'okx', name: 'OKX' }
+      { id: 'okx', name: 'OKX' },
+      { id: 'bybit', name: 'Bybit' },
+      { id: 'gate-io', name: 'Gate.io' },
+      { id: 'huobi', name: 'Huobi' },
+      { id: 'kraken', name: 'Kraken' },
+      { id: 'mexc', name: 'MEXC' }
     ];
 
     const mappings = {};
@@ -106,13 +111,20 @@ class SymbolMappingService {
       case 'binance':
       case 'kucoin':
       case 'okx':
+      case 'bybit':
+      case 'mexc':
         return `${base}${target}`;  // BTCUSDT
       case 'upbit':
         return `${target}-${base}`;  // KRW-BTC
       case 'coinbase-exchange':
+      case 'kraken':
         return `${base}-${target}`;  // BTC-USD
       case 'bithumb':
         return `${base}_${target}`;  // BTC_KRW
+      case 'gate-io':
+        return `${base}_${target}`;  // BTC_USDT (Gate.io 스타일)
+      case 'huobi':
+        return `${base}${target}`.toLowerCase();  // btcusdt (Huobi 소문자)
       default:
         return `${base}${target}`;
     }
@@ -165,7 +177,12 @@ class SymbolMappingService {
       'coinbase-exchange': ['USD', 'USDT'],
       bithumb: ['KRW'],
       kucoin: ['USDT', 'BTC'],
-      okx: ['USDT', 'BTC']
+      okx: ['USDT', 'BTC'],
+      bybit: ['USDT', 'BTC'],
+      'gate-io': ['USDT', 'BTC', 'ETH'],
+      huobi: ['USDT', 'BTC', 'ETH'],
+      kraken: ['USD', 'EUR', 'BTC'],
+      mexc: ['USDT', 'BTC']
     };
 
     return exchangePairs[exchangeId]?.includes(target) || false;

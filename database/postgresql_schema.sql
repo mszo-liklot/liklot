@@ -106,11 +106,17 @@ CREATE INDEX idx_cross_references_coin_id ON coin_cross_references(coin_id);
 CREATE INDEX idx_market_pairs_symbol ON market_pairs(exchange_id, symbol);
 CREATE INDEX idx_mapping_logs_status ON mapping_update_logs(status, started_at);
 
--- Insert initial exchange data
+-- Insert initial exchange data (6개 → 11개로 확장)
 INSERT INTO exchanges (id, name, api_url, rate_limit_per_minute) VALUES
 ('binance', 'Binance', 'https://api.binance.com', 1200),
 ('upbit', 'Upbit', 'https://api.upbit.com/v1', 600),
 ('coinbase', 'Coinbase Pro', 'https://api.exchange.coinbase.com', 3000),
 ('bithumb', 'Bithumb', 'https://api.bithumb.com/public', 900),
 ('kucoin', 'KuCoin', 'https://api.kucoin.com/api/v1', 1800),
-('okx', 'OKX', 'https://www.okx.com/api/v5', 1200);
+('okx', 'OKX', 'https://www.okx.com/api/v5', 1200),
+-- 새로 추가된 거래소들
+('bybit', 'Bybit', 'https://api.bybit.com', 600),
+('gate', 'Gate.io', 'https://api.gateio.ws', 900),
+('huobi', 'Huobi', 'https://api.huobi.pro', 800),
+('kraken', 'Kraken', 'https://api.kraken.com', 60),
+('mexc', 'MEXC', 'https://api.mexc.com', 1200);
