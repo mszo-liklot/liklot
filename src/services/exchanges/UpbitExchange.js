@@ -2,7 +2,11 @@ const BaseExchange = require('./BaseExchange');
 
 class UpbitExchange extends BaseExchange {
   constructor() {
-    super('upbit', 'https://api.upbit.com/v1', 600); // 600 calls per minute
+    super({
+      name: 'upbit',
+      baseURL: 'https://api.upbit.com/v1',
+      rateLimit: 100 // 100ms between requests (600/min limit)
+    });
   }
 
   async getTickers(symbols = null) {

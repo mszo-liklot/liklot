@@ -26,6 +26,23 @@ class BaseExchange {
     this.lastRequestTime = Date.now();
   }
 
+  // Common request method with error handling
+  async makeRequest(endpoint, params = {}) {
+    try {
+      await this.waitForRateLimit();
+      const response = await this.client.get(endpoint, { params });
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(`${this.name} API error: ${error.response.status} - ${error.response.data?.message || error.response.statusText}`);
+      } else if (error.request) {
+        throw new Error(`${this.name} network error: No response received`);
+      } else {
+        throw new Error(`${this.name} request error: ${error.message}`);
+      }
+    }
+  }
+
   // Abstract methods to be implemented by each exchange
   async getTickers(symbols) {
     throw new Error('getTickers method must be implemented');

@@ -2,7 +2,11 @@ const BaseExchange = require('./BaseExchange');
 
 class KuCoinExchange extends BaseExchange {
   constructor() {
-    super('kucoin', 'https://api.kucoin.com/api/v1', 1800); // 1800 calls per minute
+    super({
+      name: 'kucoin',
+      baseURL: 'https://api.kucoin.com/api/v1',
+      rateLimit: 33 // 33ms between requests (1800/min limit)
+    });
   }
 
   async getTickers(symbols = null) {

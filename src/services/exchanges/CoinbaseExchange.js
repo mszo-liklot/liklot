@@ -2,7 +2,11 @@ const BaseExchange = require('./BaseExchange');
 
 class CoinbaseExchange extends BaseExchange {
   constructor() {
-    super('coinbase', 'https://api.exchange.coinbase.com', 3000); // 3000 calls per minute
+    super({
+      name: 'coinbase',
+      baseURL: 'https://api.exchange.coinbase.com',
+      rateLimit: 20 // 20ms between requests (3000/min limit)
+    });
   }
 
   async getTickers(symbols = null) {

@@ -9,6 +9,37 @@ const GateExchange = require('./exchanges/GateExchange');
 const HuobiExchange = require('./exchanges/HuobiExchange');
 const KrakenExchange = require('./exchanges/KrakenExchange');
 const MEXCExchange = require('./exchanges/MEXCExchange');
+const BitfinexExchange = require('./exchanges/BitfinexExchange');
+const BitstampExchange = require('./exchanges/BitstampExchange');
+const GeminiExchange = require('./exchanges/GeminiExchange');
+const CryptoComExchange = require('./exchanges/CryptoComExchange');
+const HTXExchange = require('./exchanges/HTXExchange');
+const CoinoneExchange = require('./exchanges/CoinoneExchange');
+const KorbitExchange = require('./exchanges/KorbitExchange');
+const BitpandaExchange = require('./exchanges/BitpandaExchange');
+const LunoExchange = require('./exchanges/LunoExchange');
+const WhiteBitExchange = require('./exchanges/WhiteBitExchange');
+const PoloniexExchange = require('./exchanges/PoloniexExchange');
+const PhemexExchange = require('./exchanges/PhemexExchange');
+const BitgetExchange = require('./exchanges/BitgetExchange');
+const BingXExchange = require('./exchanges/BingXExchange');
+const DigiFinexExchange = require('./exchanges/DigiFinexExchange');
+const BitMartExchange = require('./exchanges/BitMartExchange');
+const AscendEXExchange = require('./exchanges/AscendEXExchange');
+const ProBitExchange = require('./exchanges/ProBitExchange');
+const CoinWExchange = require('./exchanges/CoinWExchange');
+const BittrexExchange = require('./exchanges/BittrexExchange');
+const WazirXExchange = require('./exchanges/WazirXExchange');
+const CoinDCXExchange = require('./exchanges/CoinDCXExchange');
+const IndodaxExchange = require('./exchanges/IndodaxExchange');
+const TokenizeExchange = require('./exchanges/TokenizeExchange');
+const BitsoExchange = require('./exchanges/BitsoExchange');
+const NovaDAXExchange = require('./exchanges/NovaDAXExchange');
+const BTCTurkExchange = require('./exchanges/BTCTurkExchange');
+const BitVavoExchange = require('./exchanges/BitVavoExchange');
+const XT_Exchange = require('./exchanges/XT_Exchange');
+const LBankExchange = require('./exchanges/LBankExchange');
+const BigONEExchange = require('./exchanges/BigONEExchange');
 
 class ExchangeManager {
   constructor() {
@@ -17,23 +48,77 @@ class ExchangeManager {
   }
 
   initialize() {
-    // Initialize exchanges (기존 6개 + 신규 5개 = 총 11개)
-    this.exchanges.set('binance', new BinanceExchange());
-    this.exchanges.set('upbit', new UpbitExchange());
-    this.exchanges.set('coinbase', new CoinbaseExchange());
-    this.exchanges.set('bithumb', new BithumbExchange());
-    this.exchanges.set('kucoin', new KuCoinExchange());
-    this.exchanges.set('okx', new OKXExchange());
+    // Initialize exchanges (총 42개 거래소)
 
-    // 새로 추가된 거래소들
-    this.exchanges.set('bybit', new BybitExchange());
-    this.exchanges.set('gate', new GateExchange());
-    this.exchanges.set('huobi', new HuobiExchange());
-    this.exchanges.set('kraken', new KrakenExchange());
-    this.exchanges.set('mexc', new MEXCExchange());
+    // Tier 1: 글로벌 메이저 거래소 (Top 10)
+    this.exchanges.set('binance', new BinanceExchange());       // #1 세계 최대
+    this.exchanges.set('coinbase', new CoinbaseExchange());     // #2 미국 최대
+    this.exchanges.set('kucoin', new KuCoinExchange());         // #3 알트코인 강세
+    this.exchanges.set('okx', new OKXExchange());               // #4 파생상품
+    this.exchanges.set('bybit', new BybitExchange());           // #5 파생상품
+    this.exchanges.set('gate', new GateExchange());             // #6 다양성
+    this.exchanges.set('huobi', new HuobiExchange());           // #7 아시아
+    this.exchanges.set('kraken', new KrakenExchange());         // #8 보안
+    this.exchanges.set('mexc', new MEXCExchange());             // #9 신규상장
+    this.exchanges.set('bitget', new BitgetExchange());         // #10 신흥강자
 
-    console.log(`📊 Initialized ${this.exchanges.size} exchanges`);
-    console.log(`   🏢 Active exchanges: ${Array.from(this.exchanges.keys()).join(', ')}`);
+    // Tier 2: 지역별 주요 거래소 (Regional Leaders)
+    this.exchanges.set('upbit', new UpbitExchange());           // 🇰🇷 한국 #1
+    this.exchanges.set('bithumb', new BithumbExchange());       // 🇰🇷 한국 #2
+    this.exchanges.set('coinone', new CoinoneExchange());       // 🇰🇷 한국 #3
+    this.exchanges.set('korbit', new KorbitExchange());         // 🇰🇷 한국 #4
+    this.exchanges.set('wazirx', new WazirXExchange());         // 🇮🇳 인도 #1
+    this.exchanges.set('coindcx', new CoinDCXExchange());       // 🇮🇳 인도 #2
+    this.exchanges.set('indodax', new IndodaxExchange());       // 🇮🇩 인도네시아 #1
+    this.exchanges.set('tokenize', new TokenizeExchange());     // 🇲🇾 말레이시아 #1
+    this.exchanges.set('bitso', new BitsoExchange());           // 🇲🇽 멕시코 #1
+    this.exchanges.set('novadax', new NovaDAXExchange());       // 🇧🇷 브라질 #1
+    this.exchanges.set('btcturk', new BTCTurkExchange());       // 🇹🇷 터키 #1
+    this.exchanges.set('bitpanda', new BitpandaExchange());     // 🇦🇹 오스트리아 #1
+    this.exchanges.set('bitvavo', new BitVavoExchange());       // 🇳🇱 네덜란드 #1
+    this.exchanges.set('luno', new LunoExchange());             // 🌍 아프리카 #1
+    this.exchanges.set('gemini', new GeminiExchange());         // 🇺🇸 미국 규제준수
+
+    // Tier 3: 글로벌 확장 거래소 (Global Expansion)
+    this.exchanges.set('bitfinex', new BitfinexExchange());     // 전문거래
+    this.exchanges.set('bitstamp', new BitstampExchange());     // 유럽 전통
+    this.exchanges.set('crypto_com', new CryptoComExchange());  // 마케팅 강화
+    this.exchanges.set('htx', new HTXExchange());               // Huobi 리브랜딩
+    this.exchanges.set('whitebit', new WhiteBitExchange());     // 동유럽
+    this.exchanges.set('poloniex', new PoloniexExchange());     // 미국 전통
+    this.exchanges.set('phemex', new PhemexExchange());         // 싱가포르
+
+    // Tier 4: 신흥 및 특화 거래소 (Emerging & Specialized)
+    this.exchanges.set('bingx', new BingXExchange());           // 소셜 트레이딩
+    this.exchanges.set('digifinex', new DigiFinexExchange());   // 아시아 신흥
+    this.exchanges.set('bitmart', new BitMartExchange());       // 다국가 지원
+    this.exchanges.set('ascendex', new AscendEXExchange());     // DeFi 특화
+    this.exchanges.set('probit', new ProBitExchange());         // 한국 기반
+    this.exchanges.set('coinw', new CoinWExchange());           // 아시아 확장
+    this.exchanges.set('bittrex', new BittrexExchange());       // 미국 전통
+    this.exchanges.set('xt', new XT_Exchange());                // 중국 기반
+    this.exchanges.set('lbank', new LBankExchange());           // 글로벌 확장
+    this.exchanges.set('bigone', new BigONEExchange());         // DeFi & 혁신
+
+    console.log(`🚀 Initialized ${this.exchanges.size} exchanges`);
+    console.log(`   🌏 Asia Pacific: ${this.getRegionalCount('asia')} exchanges`);
+    console.log(`   🌍 Europe & Africa: ${this.getRegionalCount('europe')} exchanges`);
+    console.log(`   🌎 Americas: ${this.getRegionalCount('americas')} exchanges`);
+    console.log(`   🌐 Total global coverage: ${this.exchanges.size} exchanges across 6 continents`);
+    console.log(`   💰 Supported currencies: USD, EUR, KRW, INR, IDR, MYR, MXN, BRL, TRY, ZAR, JPY, GBP+`);
+  }
+
+  getRegionalCount(region) {
+    const asiaExchanges = ['upbit', 'bithumb', 'coinone', 'korbit', 'wazirx', 'coindcx', 'indodax', 'tokenize', 'huobi', 'okx', 'bybit', 'gate', 'mexc', 'bitget', 'bingx', 'digifinex', 'coinw', 'xt', 'lbank', 'bigone', 'phemex', 'crypto_com', 'htx'];
+    const europeExchanges = ['bitpanda', 'bitvavo', 'luno', 'bitfinex', 'bitstamp', 'whitebit', 'kraken', 'btcturk'];
+    const americasExchanges = ['coinbase', 'gemini', 'bittrex', 'poloniex', 'bitso', 'novadax'];
+
+    switch(region) {
+      case 'asia': return asiaExchanges.length;
+      case 'europe': return europeExchanges.length;
+      case 'americas': return americasExchanges.length;
+      default: return 0;
+    }
   }
 
   // Get all active exchanges

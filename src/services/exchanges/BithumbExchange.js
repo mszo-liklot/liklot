@@ -2,7 +2,11 @@ const BaseExchange = require('./BaseExchange');
 
 class BithumbExchange extends BaseExchange {
   constructor() {
-    super('bithumb', 'https://api.bithumb.com/public', 900); // 900 calls per minute
+    super({
+      name: 'bithumb',
+      baseURL: 'https://api.bithumb.com/public',
+      rateLimit: 67 // 67ms between requests (900/min limit)
+    });
   }
 
   async getTickers(symbols = null) {
